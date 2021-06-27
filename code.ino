@@ -997,7 +997,7 @@ void showListofWords()
   }
  }
 
-//Used to search the word either that is in the indexed list ot not
+//Used to search the word either that is in the indexed list or not
 void searchWord()
 { 
   String stringAll = wordString;
