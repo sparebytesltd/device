@@ -2,7 +2,7 @@
 #include <SPFD5408_Adafruit_GFX.h>    // Core graphics library
 #include <SPFD5408_Adafruit_TFTLCD.h> // Hardware-specific library
 #include <SPFD5408_TouchScreen.h>     // Touch library
-  
+#include <MD5.h>
 
 //Define LCD pins
 #define YP A3  // must be an analog pin, use "An" notation!
@@ -89,10 +89,32 @@ String allWords;  //combines all the string in a single string with a delimiter
 String passPhrase1 = "";
 String passPhrase2 = "";
 String passPhrase3 = "";
+char charpass[30];
 
 //Stores the indexed word list
 String wordString = "apple|mango|white|red|green|black|blue|brown|pink|yellow|nut|max|min|orange|violate|grey|cyan|magenta";
 
+String make_hash()
+{
+   //initialize serial
+  Serial.begin(9600);
+  //give it a second
+  delay(1000);
+  //generate the MD5 hash for our string
+  unsigned char* hash = MD5::make_hash(charpass);
+  //generate the digest (hex encoding) of our hash
+  char *md5str = MD5::make_digest(hash, 16);
+  free(hash);
+  //print it on our serial monitor
+  
+  String passPhrase = String(md5str);
+  Serial.println(md5str);
+  Serial.println(passPhrase);
+  //Give the Memory back to the System if you run the md5 Hash generation in a loop
+  free(md5str); 
+
+  return passPhrase;
+}
 
 
 
@@ -602,12 +624,25 @@ void DetectButtons()
              else
              {
               if( z == 1)
-              passPhrase1 = words;
+              {
+                passPhrase1 = words;
+                passPhrase1.toCharArray(charpass, (passPhrase1.length()+1));
+                Serial.println(charpass);
+                passPhrase1 = make_hash();
+               }
               else if(z==2)
-              passPhrase2 = words;
+              {
+                passPhrase2 = words;
+                passPhrase2.toCharArray(charpass, (passPhrase2.length()+1));
+                Serial.println(charpass);
+                passPhrase2 = make_hash();
+               }
               else if(z==3)
               {
                passPhrase3 = words;
+               passPhrase3.toCharArray(charpass, (passPhrase3.length()+1));
+               Serial.println(charpass);
+               passPhrase3 = make_hash();
                passPhraseMode = false;
               }
              }
