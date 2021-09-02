@@ -40,9 +40,9 @@ Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 //Calibrate TFT LCD
 //Needed to be changed before using the device
 #define TS_MINX 115 
-#define TS_MINY 74 
-#define TS_MAXX 895 
-#define TS_MAXY 865 
+#define TS_MINY 95 
+#define TS_MAXX 905
+#define TS_MAXY 870 
 
 
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
