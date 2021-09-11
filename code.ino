@@ -3,6 +3,7 @@
 #include <SPFD5408_Adafruit_TFTLCD.h> // Hardware-specific library
 #include <SPFD5408_TouchScreen.h>     // Touch library
 #include <MD5.h>
+#include <AESLib.h>
 
 //Define LCD pins
 #define YP A3  // must be an analog pin, use "An" notation!
@@ -116,6 +117,40 @@ String make_hash()
   return passPhrase;
 }
 
+void encrypt_words()
+{
+   allWords.toCharArray(data, (allWords.length()+1));
+   key1.toCharArray(charpass1, (key1.length()+1));
+   key2.toCharArray(charpass2, (key2.length()+1));
+   key3.toCharArray(charpass3, (key3.length()+1));
+
+   aes128_enc_single(charpass1, data);
+   aes128_enc_single(charpass2, data);
+   aes128_enc_single(charpass3, data);
+
+   Serial.println("Ciphered text:");
+   for (int i = 0; i < 16; i++) 
+   {
+    char str[3];
+    sprintf(str, "%02x", (int)data[i]);
+    Serial.print(str);
+   } 
+
+}
+
+void decrypt_words()
+{
+   aes128_dec_single(charpass3, data);
+   aes128_dec_single(charpass2, data);
+   aes128_dec_single(charpass1, data);
+  
+   Serial.println("\n\nDeciphered text:");
+   for (int i = 0; i < 16; i++) 
+   {
+    Serial.print((char)data[i]);
+   }
+}
+
 
 
 void setup() 
@@ -156,7 +191,7 @@ void setup()
    Serial.println(passPhrase2);
    Serial.print("Pass Phrase3:");
    Serial.println(passPhrase3);
-
+   encrypt_words();
   //Used to write the RFID
    writeReadRFID();
   
@@ -176,11 +211,10 @@ void setup()
    //used to read the RFID
    writeReadRFID();
    delay(10000);//won't be used in the final code
-
+   decrypt_words();
    //Shows the list of words
    showListofWords();
    delay(10000);//won't be used in the final code 
-   
    goto home; 
   } 
 }
@@ -629,6 +663,7 @@ void DetectButtons()
                 passPhrase1.toCharArray(charpass, (passPhrase1.length()+1));
                 Serial.println(charpass);
                 passPhrase1 = make_hash();
+                key1 = passPhrase1;
                }
               else if(z==2)
               {
@@ -636,6 +671,7 @@ void DetectButtons()
                 passPhrase2.toCharArray(charpass, (passPhrase2.length()+1));
                 Serial.println(charpass);
                 passPhrase2 = make_hash();
+                key2 = passPhrase2;
                }
               else if(z==3)
               {
@@ -643,6 +679,7 @@ void DetectButtons()
                passPhrase3.toCharArray(charpass, (passPhrase3.length()+1));
                Serial.println(charpass);
                passPhrase3 = make_hash();
+               key3 = passPhrase3;
                passPhraseMode = false;
               }
              }
